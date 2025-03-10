@@ -7,4 +7,6 @@ Frontend:
 3.Javascript
 Backend:
 1.PostgreSQL
-2.Python FastAPI
+2. Python FastAPI
+3.Geoserver
+
