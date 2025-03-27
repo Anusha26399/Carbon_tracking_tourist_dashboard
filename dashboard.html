@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="travel_planner.js"></script>
+    <script type="module" src="trip_overview.js"></script>
+    <script type="module" src="travel_insights.js"></script>
+    
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        .bg-gradient-travel {
+            background: linear-gradient(135deg, rgba(44, 56, 73, 0.9), rgba(36, 36, 59, 0.9)), url('https://www.transparenttextures.com/patterns/arches.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .bg-card-travel {
+            background: linear-gradient(160deg, rgba(73, 94, 111, 0.95), rgba(41, 45, 74, 0.85)), url('https://www.transparenttextures.com/patterns/arches.png');
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .bg-header-travel {
+            background: linear-gradient(90deg, #16161d 0%, #423a58 100%);
+            border-bottom: 1px solid rgba(208, 130, 223, 0.3);
+        }
+        .bg-footer-travel {
+            background: linear-gradient(90deg, #16161d 0%, #2d3142 100%);
+            border-top: 1px solid rgba(218, 139, 223, 0.3);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .btn-travel {
+            background: linear-gradient(135deg, #a3a6ff, #657fe9);
+            transition: all 0.3s;
+        }
+        .btn-travel:hover {
+            background: linear-gradient(135deg, #9583e3, #6b73e6);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(177, 159, 255, 0.5);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #91283a, #c1485a);
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c1485a, #91283a);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.5);
+        }
+        .card-hover {
+            transition: all 0.3s;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .map-container {
+            border: 1px solid rgba(226, 218, 218, 0.1);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gradient-travel text-white flex flex-col h-screen">
+    <!-- Header -->
+    <div class="p-5 bg-header-travel shadow-lg" 
+        style="background-image: url('/icons/banner3.png'); 
+                background-size: cover; 
+                background-position: center; 
+                background-repeat: no-repeat; 
+                height: 80px; 
+                width: 100%; 
+                position: relative;">
+
+        <!-- Quote on the right -->
+        <div class="absolute top-4 right-14 p-10 text-sm text-white-400">
+            <span class="italic">"Conscious travel, smaller footprints.🌿" </span>
+        </div>
+
+        <!-- User greeting on the left -->
+        <div class="absolute bottom-4 left-4">
+            <h1 class="text-2xl font-bold glow-text">Hi Anusha</h1>
+            <p class="text-xs mt-1 text-gray-300">
+                You are currently in <span class="text-blue-400 font-semibold" id="locationName">Fetching location...</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto p-4">
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Travel Planner -->
+            <form class="bg-card-travel p-4 rounded-xl shadow-lg card-hover" id="tripForm">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Travel Planner</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-1.5 text-sm font-medium">Category</label>
+                        <select id="category" class="w-full p-2 rounded-md bg-gray-800 border border-gray-600 text-sm focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all" required>
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1.5 text-sm font-medium">Select a Location</label>
+                        <select id="location" class="w-full p-2 rounded-md bg-gray-800 border border-gray-600 text-sm focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all" required>
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1.5 text-sm font-medium">Date of Trip</label>
+                        <input type="date" id="tripDate" class="w-full p-2 rounded-md bg-gray-800 border border-gray-600 text-sm focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block mb-1.5 text-sm font-medium">Transport Mode</label>
+                        <select id="transportMode" class="w-full p-2 rounded-md bg-gray-800 border border-gray-600 text-sm focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all" required>
+                            <option value="bus">Bus</option>
+                            <option value="ev">EV</option>
+                            <option value="bike">Bike</option>
+                            <option value="walk">Walk</option>
+                            <option value="car">Car</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full p-2 btn-travel rounded-md text-sm font-semibold">Add Trip</button>
+                </div>
+            </form>
+
+            <!-- Trips Overview -->
+            <div class="bg-card-travel p-4 rounded-xl shadow-lg card-hover">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Trips Overview</h2>
+                <div class="space-y-4">
+                    <div id="tripsList">
+                        <!-- Trips will be dynamically inserted here by trip_overview.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Travel Insights -->
+            <div class="bg-card-travel p-4 rounded-xl shadow-lg card-hover">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Travel Insights</h2>
+                <div class="space-y-2 text-sm">
+                    <div class="p-2 bg-blue-900/30 rounded-md flex justify-between">
+                        <span>Total Distance Travelled:</span>
+                        <span id="totalDistance" class="font-medium">Loading...</span>
+                    </div>
+                    <div class="p-2 bg-purple-900/30 rounded-md flex justify-between">
+                        <span>Planned Visits:</span>
+                        <span class="font-medium planned-visits-count">Loading...</span>
+                    </div>
+                    <div class="p-2 bg-green-900/30 rounded-md flex justify-between">
+                        <span>Places Visited:</span>
+                        <span class="font-medium places-visited-count">Loading...</span>
+                    </div>
+                </div>
+                <div class="map-container h-56 w-full mt-4" id="mapContainer">
+                    <div id="map" class="h-full w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Recommendations Section -->
+        <div class="flex flex-col md:flex-row gap-4 mt-4">
+            <!-- Carbon Emission Activity -->
+                <div class="bg-card-travel p-4 rounded-xl shadow-lg card-hover" style="flex: 1.5">
+
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Carbon Emission Activity</h2>
+                <div class="flex flex-wrap text-sm space-y-0 gap-3 mb-3">
+                    <div class="p-2 bg-red-900/30 rounded-md flex-grow">
+                        <span class="block text-gray-300">Net Carbon Impact</span>
+                        <span class="text-lg font-semibold text-red-400" id="netcarbon">Loading...</span>
+                        <span class="inline-block w-4 h-4 ml-2">🌍</span>
+                    </div>
+                    <div class="p-2 bg-green-900/30 rounded-md flex-grow">
+                        <span class="block text-gray-300">Carbon Emission Saved</span>
+                        <span class="text-lg font-semibold text-green-400" id="emissionsSaved">Loading...</span>
+                        <span class="inline-block w-4 h-4 ml-2">♻️</span>
+                    </div>
+                    <div class="p-2 bg-green-900/30 rounded-md flex-grow">
+                        <span class="block text-gray-300">EcoScore</span>
+                        <span class="text-lg font-semibold text-green-400" id="ecoscore">Loading...</span>
+                        <span class="inline-block w-4 h-4 ml-2">🌱</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="chart-container h-full">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                    <div class="chart-container h-80">
+
+                        <canvas id="lineChart" height="400" width="400"></canvas>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Visited Places -->
+            <div class="bg-card-travel p-4 rounded-xl shadow-lg card-hover" style="flex: 0.8">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Top Visited Places</h2>
+                <div class="chart-container h-80">
+                        <canvas id="barChart" height="400"></canvas>
+
+
+
+                </div>
+            </div>
+
+
+            <!-- Nearby Recommendations -->
+
+            <div class="bg-card-travel p-4 rounded-xl shadow-lg card-hover" style="flex: 0.8">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Nearby Recommendations</h2>
+                <div id="recommendations-container" class="text-sm space-y-4">
+                    <div>
+                        <h3 class="font-medium mb-2 text-blue-400">Hotels Nearby</h3>
+                        <ul class="space-y-1.5" id="hotels-list"></ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2 text-orange-400">Restaurants/Cafes Nearby</h3>
+                        <ul class="space-y-1.5" id="restaurants-list"></ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2 text-purple-400">Places to Visit Nearby</h3>
+                        <ul class="space-y-1.5" id="places-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-1 bg-footer-travel text-center">
+        <button class="px-2 py-1 btn-danger rounded-md text-sm font-semibold" id="clearDataButton">Clear Past Data</button>
+        <script>
+            document.getElementById('clearDataButton').addEventListener('click', async () => {
+                const response = await fetch('http://localhost:3000/api/trips', { method: 'DELETE' });
+                
+                location.reload(); // Reload the page after clearing data
+            });
+
+    // Event listener for adding trips
+    document.getElementById('tripForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        // Logic to add trip and update values
+        // Fetch updated emissions data
+        await fetchEmissionsData();
+        await fetchEcoScoreData();
+        
+        // Dispatch the tripAdded event to refresh the chart
+        document.dispatchEvent(new Event('tripAdded'));
+
+            });
+        </script>
+        <p class="text-xs mt-2 text-gray-500">#TravelWithInsight | @2025 EcoWanderNest 💚</p>
+    </div>
+    <script>
+        // Initialize map 
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM() // Default OSM tiles
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([72.5714, 23.0225]),
+                zoom: 11,
+                extent: ol.proj.transformExtent(
+                    [-180, -85, 180, 85], 'EPSG:4326', 'EPSG:3857'
+                )
+            })
+        });
+
+        // Initialize vector source for completed trips
+        const completedVectorSource = new ol.source.Vector();
+        
+        const completedVectorLayer = new ol.layer.Vector({
+            source: completedVectorSource,
+            style: new ol.style.Style({
+            image: new ol.style.Icon({
+                src: '/icons/source_marker.png',  // Correct path with forward slash
+                scale: 0.07
+            })
+        })
+        });
+        
+        map.addLayer(completedVectorLayer);
+
+        // Fetch completed trips and add markers
+        fetch('http://localhost:3000/api/trips?status=completed')
+            .then(response => response.json())
+            .then(trips => {
+                trips.forEach(trip => {
+                    if (trip.latitude && trip.longitude) {
+                        const coordinates = [parseFloat(trip.longitude), parseFloat(trip.latitude)];
+                        const marker = new ol.Feature({
+                            geometry: new ol.geom.Point(ol.proj.fromLonLat(coordinates)),
+                            name: trip.location,
+                            status: trip.status
+                        });
+                        completedVectorSource.addFeature(marker);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching completed trips:', error);
+            });
+
+       // Replace the fetchEmissionsData function with this one
+       async function fetchEmissionsData() {
+            try {
+                const emissionsResponse = await fetch('http://localhost:3000/api/emissions');
+                const emissionsData = await emissionsResponse.json();
+                
+                // Update net carbon and saved emissions
+                document.getElementById('netcarbon').textContent = `${emissionsData.net.toFixed(0)} g`;
+                document.getElementById('emissionsSaved').textContent = `${emissionsData.saved.toFixed(0)} g`;
+
+                // Fetch emissions by mode
+                const emissionsByModeResponse = await fetch('http://localhost:3000/api/emissions-by-mode');
+                const modeData = await emissionsByModeResponse.json();
+                
+                console.log('Raw emissions by mode data:', modeData);
+
+                if (modeData && Array.isArray(modeData) && modeData.length > 0) {
+                    const ctx = document.getElementById('doughnutChart').getContext('2d');
+                    
+                    const chartData = [
+                        parseFloat(modeData.find(item => item.transportmode === 'car')?.actual_emissions || 0),
+                        parseFloat(modeData.find(item => item.transportmode === 'bus')?.actual_emissions || 0),
+                        parseFloat(modeData.find(item => item.transportmode === 'bike')?.actual_emissions || 0)
+                    ];
+
+
+                    console.log('Processed chart data:', chartData);
+
+                    // Destroy existing chart
+                    if (window.emissionsChart) {
+                        window.emissionsChart.destroy();
+                    }
+
+                    // Create new chart
+                    window.emissionsChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Car', 'Bus', 'Bike'],
+
+                            datasets: [{
+                                label: 'Actual Emissions by Travel Mode',
+                                data: chartData,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.8)',
+                                    'rgba(54, 162, 235, 0.8)',
+                                    'rgba(255, 206, 86, 0.8)',
+                                    
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            animation: {
+                                animateRotate: true,
+                                animateScale: true,
+                                duration: 2000, // Increased animation duration
+                                easing: 'easeOutQuart', // Smooth easing function
+                                onProgress: function(animation) {
+                                    // Optional: Add a subtle pulse effect during animation
+                                    const chartArea = this.chartArea;
+                                    const ctx = this.ctx;
+                                    ctx.save();
+                                    ctx.globalAlpha = animation.currentStep / animation.numSteps;
+                                    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                                    ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+                                    ctx.restore();
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: '#ffffff',
+                                        font: {
+                                            size: 12,
+                                            family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Actual Emissions by Travel Mode',
+                                    color: '#ffffff',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    titleColor: '#ffffff',
+                                    bodyColor: '#ffffff',
+                                    borderColor: 'rgba(255,255,255,0.2)',
+                                    borderWidth: 1,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${parseFloat(context.raw).toFixed(2)} g CO2`;
+                                        }
+                                    }
+                                }
+                            },
+                            // Hover interactions
+                            hover: {
+                                mode: 'nearest',
+                                intersect: true
+                            },
+                            // Interaction
+                            interaction: {
+                                mode: 'nearest',
+                                intersect: false
+                            }
+                        }
+                    });
+                } else {
+                    console.error('No valid emissions data found');
+                }
+            } catch (error) {
+                console.error('Error fetching emissions data:', error);
+            }
+        }
+
+        // Improved ecoscore function
+        async function fetchEcoScoreData() {
+            try {
+                const response = await fetch('http://localhost:3000/api/ecoscore');
+                const data = await response.json();
+                
+                if (data && data.ecoscore !== undefined) {
+                    document.getElementById('ecoscore').textContent = `${data.ecoscore.toFixed(0)} /100`;
+                } else {
+                    document.getElementById('ecoscore').textContent = '0 /100';
+                }
+            } catch (error) {
+                console.error('Error fetching ecoscore data:', error);
+                document.getElementById('ecoscore').textContent = '0 /100';
+            }
+        }
+        async function fetchLineChartData() {
+    try {
+        const response = await fetch('http://localhost:3000/api/line-chart-data');
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            // Group data by month and year, calculating average EcoScore
+            const monthlyData = data.reduce((acc, item) => {
+                const date = new Date(item.visitdate);
+                const monthKey = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+                
+                if (!acc[monthKey]) {
+                    acc[monthKey] = { 
+                        total: item.ecoscore, 
+                        count: 1 
+                    };
+                } else {
+                    acc[monthKey].total += item.ecoscore;
+                    acc[monthKey].count += 1;
+                }
+                return acc;
+            }, {});
+
+            // Convert grouped data to chart-friendly format
+            const labels = Object.keys(monthlyData);
+            const ecoScores = labels.map(key => 
+                monthlyData[key].total / monthlyData[key].count
+            );
+            
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            // Destroy existing chart if it exists
+            if (window.ecoScoreChart) {
+                window.ecoScoreChart.destroy();
+            }
+            
+            // Create new chart
+            window.ecoScoreChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Monthly Average EcoScore',
+                        data: ecoScores,
+                        borderColor: 'rgba(72, 209, 142, 1)',
+                        backgroundColor: 'rgba(72, 209, 142, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(72, 209, 142, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Average EcoScore',
+                            color: '#ffffff',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Average EcoScore: ${parseFloat(context.raw).toFixed(1)}/100`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Average EcoScore',
+                                color: '#ffffff',
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month',
+                                color: '#ffffff',
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.log('No EcoScore data available for chart');
+        }
+    } catch (error) {
+        console.error('Error fetching line chart data:', error);
+    }
+}
+
+        // Event listener for tripAdded to refresh charts
+        document.addEventListener('tripAdded', async () => {
+            await fetchEmissionsData();
+            await fetchEcoScoreData();
+            await fetchLineChartData();
+        });
+
+        // Make sure to call both functions on page load
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchEmissionsData();
+            fetchEcoScoreData();
+            fetchLineChartData();
+        });
+    </script>
+    <script type="module" src="location_handler.js"></script>
+    <script type="module" src="nearby_recommendation.js"></script>
+    <script type="module" src="top_visited_places.js"></script>
+
+</body>
