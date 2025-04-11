@@ -1,12 +1,45 @@
-# Carbon_tracking_tourist_dashboard
+# 🌍 Carbon Tracking Tourist Dashboard
 
-A real-time dashboard created for tourist to track their carbon emission, get recommedations of places, restaurants or hotels nearby and see their travel summaries.
-Frontend:
-1.HTML
-2.Tailwind CSS
-3.Javascript
-Backend:
-1.PostgreSQL
-2. Python FastAPI
-3.Geoserver
+A real-time dashboard designed for tourists to:
 
+- 📊 Track their carbon emissions during travel
+- 🧭 Get smart recommendations for nearby places, restaurants, and hotels
+- 🧾 View a personalized summary of their trips and environmental impact
+
+---
+
+## 🧰 Tech Stack
+
+### 🖥️ Frontend
+- **HTML**
+- **Tailwind CSS**
+- **JavaScript**
+
+### 🛠️ Backend
+- **PostgreSQL**: Stores geospatial data, user activity, and emission logs
+- **Python FastAPI**: Handles APIs and real-time logic
+- **GeoServer**: Serves spatial layers (e.g., travel routes, POIs)
+
+---
+
+## 🌐 Features
+
+- 🛰️ Real-time location tracking
+- ♻️ Carbon footprint estimation for different transport modes
+- 🍽️ Nearby places: restaurants, hotels, and tourist attractions
+- 📅  Travel summary data
+- 🌱 Personalized green travel tips and alternative options
+
+---
+
+## 🗺️ Architecture Overview
+
+```plaintext
+User (Browser)
+   ↓
+Frontend (HTML + Tailwind + JS)
+   ↓
+FastAPI (Python Backend)
+   ↓        ↘
+PostgreSQL   GeoServer (Spatial Layers)
+```
