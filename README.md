@@ -45,6 +45,10 @@ PostgreSQL   GeoServer (Spatial Layers)
 ```
 ## Prototype Link
 https://www.figma.com/design/MuxhiXJ4FNmer2JFvz6gX7/Untitled?node-id=0-1&t=dWPunell2HGvorpv-1
+## 📸 Dashboard Preview
+
+![Dashboard Screenshot](image.png)
+
 
 
 
