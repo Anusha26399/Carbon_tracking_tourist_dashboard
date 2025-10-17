@@ -7,6 +7,9 @@ A real-time dashboard designed for tourists to:
 - 🧾 View a personalized summary of their trips and environmental impact
 
 ---
+## 📸 Dashboard Preview
+
+![Dashboard Screenshot](image.png)
 
 ## 🧰 Tech Stack
 
@@ -45,9 +48,7 @@ PostgreSQL   GeoServer (Spatial Layers)
 ```
 ## Prototype Link
 https://www.figma.com/design/MuxhiXJ4FNmer2JFvz6gX7/Untitled?node-id=0-1&t=dWPunell2HGvorpv-1
-## 📸 Dashboard Preview
 
-![Dashboard Screenshot](image.png)
 
 
 
